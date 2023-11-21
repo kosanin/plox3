@@ -24,6 +24,10 @@ public class Plox3 {
         }
     }
 
+    public static void error(int line, String message) {
+        report(line, "", message);
+    }
+
     private static void runRepl() throws IOException {
         InputStreamReader inputStreamReader = new InputStreamReader(System.in);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -52,10 +56,6 @@ public class Plox3 {
         for (var token : tokens) {
             System.out.println(token);
         }
-    }
-
-    public static void error(int line, String message) {
-        report(line, "", message);
     }
 
     private static void report(int line, String where, String message) {
