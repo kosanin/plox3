@@ -1,0 +1,10 @@
+1234
+12.14
+
+var lang = "string";
+
+// this is a comment
+
+(( )){}
+
+!*+-/=<> <= ==
