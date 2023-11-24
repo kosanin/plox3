@@ -4,6 +4,7 @@ import com.petar.plox3.Plox3;
 import com.petar.plox3.scanner.Token;
 import com.petar.plox3.scanner.TokenType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Parser {
@@ -14,12 +15,31 @@ public class Parser {
         this.tokens = tokens;
     }
 
-    public Expression parse() {
-        try {
-            return expression();
-        } catch (ParseError error) {
-            return null;
+    public List<Statement> parse() {
+        List<Statement> stmts = new ArrayList<>();
+        while (!isAtEnd()) {
+            stmts.add(statement());
         }
+        return stmts;
+    }
+
+    private Statement statement() {
+        if (match(TokenType.PRINT)) {
+            return printStatement();
+        }
+        return expressionStatement();
+    }
+
+    private Statement expressionStatement() {
+        Expression expression = expression();
+        consume(TokenType.SEMICOLON, "Expected ; after value.");
+        return new Stmt.ExprStatement(expression);
+    }
+
+    private Statement printStatement() {
+        Expression expression = expression();
+        consume(TokenType.SEMICOLON, "Expected ; after value.");
+        return new Stmt.PrintStatement(expression);
     }
 
     private Expression expression() {
@@ -121,9 +141,9 @@ public class Parser {
         return new ParseError();
     }
 
-    private void consume(TokenType tokenType, String message) {
+    private Token consume(TokenType tokenType, String message) {
         if (check(tokenType)) {
-            advance();
+            return advance();
         }
         throw error(peek(), message);
     }
@@ -157,6 +177,6 @@ public class Parser {
     }
 
     private boolean isAtEnd() {
-        return currentTokenIndex >= tokens.size();
+        return peek().type() == TokenType.EOF;
     }
 }

@@ -3,15 +3,20 @@ package com.petar.plox3.parser;
 import com.petar.plox3.Plox3;
 import com.petar.plox3.scanner.Token;
 
-public class Interpreter implements ExprVisitor<Object> {
+import java.util.List;
 
-    public void interpret(Expression expression) {
+public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
+
+    public void interpret(List<Statement> statements) {
         try {
-            Object value = evaluate(expression);
-            System.out.println(stringify(value));
+            statements.forEach(this::execute);
         } catch (RuntimeError error) {
             Plox3.runtimeError(error);
         }
+    }
+
+    private void execute(Statement statement) {
+        statement.accept(this);
     }
 
     private String stringify(Object object) {
@@ -161,5 +166,18 @@ public class Interpreter implements ExprVisitor<Object> {
     @Override
     public Object visitLiteralExpr(Expr.Literal literal) {
         return literal.value();
+    }
+
+    @Override
+    public Void visitPrintStatement(Stmt.PrintStatement printStatement) {
+        Object expr = evaluate(printStatement.expression());
+        System.out.println(stringify(expr));
+        return null;
+    }
+
+    @Override
+    public Void visitExprStatement(Stmt.ExprStatement exprStatement) {
+        evaluate(exprStatement.expression());
+        return null;
     }
 }

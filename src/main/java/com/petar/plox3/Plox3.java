@@ -1,6 +1,5 @@
 package com.petar.plox3;
 
-import com.petar.plox3.parser.Expression;
 import com.petar.plox3.parser.Interpreter;
 import com.petar.plox3.parser.Parser;
 import com.petar.plox3.parser.RuntimeError;
@@ -65,13 +64,13 @@ public class Plox3 {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
         Parser parser = new Parser(tokens);
-        Expression expression = parser.parse();
+        var stmts = parser.parse();
 
         if (hadError) {
             return;
         }
 
-        interpreter.interpret(expression);
+        interpreter.interpret(stmts);
     }
 
     private static void report(int line, String where, String message) {
