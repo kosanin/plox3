@@ -1,8 +1,9 @@
 package com.petar.plox3;
 
-import com.petar.plox3.parser.AstPrinter;
 import com.petar.plox3.parser.Expression;
+import com.petar.plox3.parser.Interpreter;
 import com.petar.plox3.parser.Parser;
+import com.petar.plox3.parser.RuntimeError;
 import com.petar.plox3.scanner.Scanner;
 import com.petar.plox3.scanner.Token;
 import com.petar.plox3.scanner.TokenType;
@@ -16,7 +17,10 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class Plox3 {
+
+    private static final Interpreter interpreter = new Interpreter();
     private static boolean hadError = false;
+    private static boolean hadRuntimeError = false;
 
     public static void main(String[] args) throws IOException {
         if (args.length > 1) {
@@ -52,6 +56,9 @@ public class Plox3 {
         if (hadError) {
             System.exit(65);
         }
+        if (hadRuntimeError) {
+            System.exit(70);
+        }
     }
 
     private static void run(String source) {
@@ -64,7 +71,7 @@ public class Plox3 {
             return;
         }
 
-        System.out.println(new AstPrinter().print(expression));
+        interpreter.interpret(expression);
     }
 
     private static void report(int line, String where, String message) {
@@ -79,5 +86,11 @@ public class Plox3 {
         } else {
             report(token.line(), " at " + token.lexeme() + " ", message);
         }
+    }
+
+    public static void runtimeError(RuntimeError error) {
+        System.err.println(
+                error.getMessage() + "\n[line" + error.getToken().line() + "]");
+        hadRuntimeError = true;
     }
 }
