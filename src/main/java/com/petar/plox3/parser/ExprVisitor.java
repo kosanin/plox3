@@ -8,4 +8,6 @@ public interface ExprVisitor<R> {
     R visitGroupingExpr(Expr.Grouping grouping);
 
     R visitLiteralExpr(Expr.Literal literal);
+
+    R visitVariableExpr(Expr.Variable variable);
 }

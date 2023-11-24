@@ -6,4 +6,5 @@ public interface StmtVisitor<R> {
 
     R visitExprStatement(Stmt.ExprStatement exprStatement);
 
+    R visitVarStatement(Stmt.VarStatement varStatement);
 }

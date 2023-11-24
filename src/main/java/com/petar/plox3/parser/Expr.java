@@ -33,4 +33,10 @@ public record Expr() {
         }
     }
 
+    public record Variable(Token name) implements Expression {
+        @Override
+        public <R> R accept(ExprVisitor<R> visitor) {
+            return visitor.visitVariableExpr(this);
+        }
+    }
 }

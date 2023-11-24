@@ -18,9 +18,31 @@ public class Parser {
     public List<Statement> parse() {
         List<Statement> stmts = new ArrayList<>();
         while (!isAtEnd()) {
-            stmts.add(statement());
+            stmts.add(declaration());
         }
         return stmts;
+    }
+
+    private Statement declaration() {
+        try {
+            if (match(TokenType.VAR)) {
+                return varDeclaration();
+            }
+            return statement();
+        } catch (ParseError error) {
+            synchronize();
+            return null;
+        }
+    }
+
+    private Statement varDeclaration() {
+        Token name = consume(TokenType.IDENTIFIER, "Expected variable name");
+        Expression initializer = null;
+        if (match(TokenType.EQUAL)) {
+            initializer = expression();
+        }
+        consume(TokenType.SEMICOLON, "Expected ; after value.");
+        return new Stmt.VarStatement(name, initializer);
     }
 
     private Statement statement() {
@@ -116,6 +138,9 @@ public class Parser {
             Expression expr = expression();
             consume(TokenType.RIGHT_PAREN, "Expected ) but not found");
             return new Expr.Grouping(expr);
+        }
+        if (match(TokenType.IDENTIFIER)) {
+            return new Expr.Variable(previous());
         }
         throw error(peek(), "Expect expression.");
     }

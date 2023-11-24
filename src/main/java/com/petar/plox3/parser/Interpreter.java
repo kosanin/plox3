@@ -1,11 +1,14 @@
 package com.petar.plox3.parser;
 
+import com.petar.plox3.Environment;
 import com.petar.plox3.Plox3;
 import com.petar.plox3.scanner.Token;
 
 import java.util.List;
 
 public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
+
+    private Environment environment = new Environment();
 
     public void interpret(List<Statement> statements) {
         try {
@@ -169,6 +172,11 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     }
 
     @Override
+    public Object visitVariableExpr(Expr.Variable variable) {
+        return environment.get(variable.name());
+    }
+
+    @Override
     public Void visitPrintStatement(Stmt.PrintStatement printStatement) {
         Object expr = evaluate(printStatement.expression());
         System.out.println(stringify(expr));
@@ -178,6 +186,16 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     @Override
     public Void visitExprStatement(Stmt.ExprStatement exprStatement) {
         evaluate(exprStatement.expression());
+        return null;
+    }
+
+    @Override
+    public Void visitVarStatement(Stmt.VarStatement varStatement) {
+        Object value = null;
+        if (varStatement.expression() != null) {
+            value = evaluate(varStatement.expression());
+        }
+        environment.define(varStatement.name().lexeme(), value);
         return null;
     }
 }

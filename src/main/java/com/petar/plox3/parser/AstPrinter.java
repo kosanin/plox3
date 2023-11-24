@@ -27,6 +27,11 @@ public class AstPrinter implements ExprVisitor<String> {
         return literal.value() != null ? literal.value().toString() : "nil";
     }
 
+    @Override
+    public String visitVariableExpr(Expr.Variable variable) {
+        return variable.name().lexeme();
+    }
+
     private String parenthesize(String name, Expression... expressions) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("(").append(name);

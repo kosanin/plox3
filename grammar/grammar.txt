@@ -1,4 +1,11 @@
-program     -> statement* EOF
+program     -> declaration* EOF
+            ;
+
+declaration -> varDecl
+            | statement
+            ;
+
+varDecl     -> "var" IDENTIFIER ( "=" expression )? ";"
             ;
 
 statement   -> exprStmt
@@ -36,4 +43,5 @@ primary     -> NUMBER
             | "false"
             | "nil"
             | "(" expression ")"
+            | IDENTIFIER
             ;
