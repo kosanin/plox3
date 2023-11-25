@@ -177,6 +177,13 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     }
 
     @Override
+    public Object visitAssignmentExpr(Expr.Assignment assignment) {
+        Object value = evaluate(assignment.expression());
+        environment.assign(assignment.name(), value);
+        return value;
+    }
+
+    @Override
     public Void visitPrintStatement(Stmt.PrintStatement printStatement) {
         Object expr = evaluate(printStatement.expression());
         System.out.println(stringify(expr));

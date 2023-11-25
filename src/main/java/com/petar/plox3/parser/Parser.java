@@ -65,7 +65,23 @@ public class Parser {
     }
 
     private Expression expression() {
-        return equality();
+        return assignment();
+    }
+
+    private Expression assignment() {
+        // need to parse lValue as it can be something like a.b().c().d
+        Expression lValue = equality();
+        if (match(TokenType.EQUAL)) {
+            Token equals = previous();
+            Expression rValue = assignment();
+            // verify lValue is a variable, e.g lValue = !x
+            if (lValue instanceof Expr.Variable) {
+                Token name = ((Expr.Variable) lValue).name();
+                return new Expr.Assignment(name, rValue);
+            }
+            error(equals, "Invalid assignment target.");
+        }
+        return lValue;
     }
 
     private Expression equality() {

@@ -39,4 +39,13 @@ public record Expr() {
             return visitor.visitVariableExpr(this);
         }
     }
+
+    public record Assignment(Token name, Expression expression)
+            implements Expression {
+
+        @Override
+        public <R> R accept(ExprVisitor<R> visitor) {
+            return visitor.visitAssignmentExpr(this);
+        }
+    }
 }

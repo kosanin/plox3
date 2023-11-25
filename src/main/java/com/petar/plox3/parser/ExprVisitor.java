@@ -10,4 +10,6 @@ public interface ExprVisitor<R> {
     R visitLiteralExpr(Expr.Literal literal);
 
     R visitVariableExpr(Expr.Variable variable);
+
+    R visitAssignmentExpr(Expr.Assignment assignment);
 }
