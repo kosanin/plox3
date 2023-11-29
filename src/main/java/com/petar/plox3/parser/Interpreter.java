@@ -205,4 +205,24 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         environment.define(varStatement.name().lexeme(), value);
         return null;
     }
+
+    @Override
+    public Void visitBlockStatement(Stmt.BlockStatement blockStatement) {
+        executeBlock(blockStatement.statementList(),
+                     new Environment(environment));
+        return null;
+    }
+
+    private void executeBlock(List<Statement> statements,
+                              Environment environment) {
+        Environment previous = this.environment;
+        try {
+            this.environment = environment;
+            for (var stmt : statements) {
+                execute(stmt);
+            }
+        } finally {
+            this.environment = previous;
+        }
+    }
 }

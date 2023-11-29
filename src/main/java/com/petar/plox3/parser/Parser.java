@@ -49,7 +49,19 @@ public class Parser {
         if (match(TokenType.PRINT)) {
             return printStatement();
         }
+        if (match(TokenType.LEFT_BRACE)) {
+            return new Stmt.BlockStatement(block());
+        }
         return expressionStatement();
+    }
+
+    private List<Statement> block() {
+        List<Statement> statements = new ArrayList<>();
+        while (!check(TokenType.RIGHT_BRACE) && !isAtEnd()) {
+            statements.add(declaration());
+        }
+        consume(TokenType.RIGHT_BRACE, "expected end of block");
+        return statements;
     }
 
     private Statement expressionStatement() {
