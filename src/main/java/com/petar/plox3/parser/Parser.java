@@ -5,6 +5,7 @@ import com.petar.plox3.scanner.Token;
 import com.petar.plox3.scanner.TokenType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Parser {
@@ -55,7 +56,60 @@ public class Parser {
         if (match(TokenType.IF)) {
             return ifStatement();
         }
+        if (match(TokenType.FOR)) {
+            return forStatement();
+        }
+        if (match(TokenType.WHILE)) {
+            return whileStatement();
+        }
         return expressionStatement();
+    }
+
+    private Statement whileStatement() {
+        consume(TokenType.LEFT_PAREN, "expect '(' before while condition");
+        Expression condition = expression();
+        consume(TokenType.RIGHT_PAREN, "expect ')' after while condition");
+        Statement body = statement();
+        return new Stmt.WhileStatement(condition, body);
+    }
+
+    private Statement forStatement() {
+        consume(TokenType.LEFT_PAREN, "Expected '(' in for loop");
+        Statement initializer;
+        if (match(TokenType.SEMICOLON)) {
+            initializer = null;
+        } else if (match(TokenType.VAR)) {
+            initializer = varDeclaration();
+        } else {
+            initializer = expressionStatement();
+        }
+        Expression condition = null;
+        if (!check(TokenType.SEMICOLON)) {
+            condition = expression();
+        }
+        consume(TokenType.SEMICOLON,
+                "Expected ';' after condition in for loop");
+
+        Expression increment = null;
+        if (!check(TokenType.RIGHT_PAREN)) {
+            increment = expression();
+        }
+        consume(TokenType.RIGHT_PAREN, "Expected ')' in for loop");
+
+        Statement body = statement();
+        if (increment != null) {
+            body = new Stmt.BlockStatement(
+                    Arrays.asList(body, new Stmt.ExprStatement(increment)));
+        }
+        if (condition == null) {
+            condition = new Expr.Literal(true);
+        }
+        body = new Stmt.WhileStatement(condition, body);
+
+        if (initializer != null) {
+            body = new Stmt.BlockStatement(Arrays.asList(initializer, body));
+        }
+        return body;
     }
 
     private Statement ifStatement() {

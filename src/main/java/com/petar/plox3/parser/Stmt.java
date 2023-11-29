@@ -44,4 +44,12 @@ public record Stmt() {
             return visitor.visitIfStatement(this);
         }
     }
+
+    public record WhileStatement(Expression condition, Statement body)
+            implements Statement {
+        @Override
+        public <R> R accept(StmtVisitor<R> visitor) {
+            return visitor.visitWhileStatement(this);
+        }
+    }
 }

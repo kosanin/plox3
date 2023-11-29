@@ -241,6 +241,14 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visitWhileStatement(Stmt.WhileStatement whileStatement) {
+        while (isTruthy(evaluate(whileStatement.condition()))) {
+            execute(whileStatement.body());
+        }
+        return null;
+    }
+
     private void executeBlock(List<Statement> statements,
                               Environment environment) {
         Environment previous = this.environment;

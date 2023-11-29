@@ -12,6 +12,11 @@ statement   -> exprStmt
             | printStmt
             | ifStmt
             | block
+            | forStmt
+            | whileStmt
+            ;
+
+forStmt     -> "for" "(" (varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement
             ;
 
 ifStmt      -> "if" "(" expression ")" statement ( "else" statement )?
