@@ -35,4 +35,13 @@ public record Stmt() {
             return visitor.visitBlockStatement(this);
         }
     }
+
+    public record IfStmt(Expression condition, Statement then,
+                         Statement elseStmt) implements Statement {
+
+        @Override
+        public <R> R accept(StmtVisitor<R> visitor) {
+            return visitor.visitIfStatement(this);
+        }
+    }
 }

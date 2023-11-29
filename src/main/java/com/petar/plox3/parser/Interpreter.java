@@ -213,6 +213,16 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visitIfStatement(Stmt.IfStmt ifStmt) {
+        if (isTruthy(ifStmt.condition())) {
+            execute(ifStmt.then());
+        } else if (ifStmt.elseStmt() != null) {
+            execute(ifStmt.elseStmt());
+        }
+        return null;
+    }
+
     private void executeBlock(List<Statement> statements,
                               Environment environment) {
         Environment previous = this.environment;

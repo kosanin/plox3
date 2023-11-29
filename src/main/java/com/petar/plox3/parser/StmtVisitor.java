@@ -9,4 +9,6 @@ public interface StmtVisitor<R> {
     R visitVarStatement(Stmt.VarStatement varStatement);
 
     R visitBlockStatement(Stmt.BlockStatement blockStatement);
+
+    R visitIfStatement(Stmt.IfStmt ifStmt);
 }

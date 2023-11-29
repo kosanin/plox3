@@ -52,7 +52,22 @@ public class Parser {
         if (match(TokenType.LEFT_BRACE)) {
             return new Stmt.BlockStatement(block());
         }
+        if (match(TokenType.IF)) {
+            return ifStatement();
+        }
         return expressionStatement();
+    }
+
+    private Statement ifStatement() {
+        consume(TokenType.LEFT_PAREN, "Expected '(' before if condition");
+        Expression condition = expression();
+        consume(TokenType.RIGHT_PAREN, "Expected ')' after if condition");
+        Statement thenBranch = statement();
+        Statement elseBranch = null;
+        if (match(TokenType.ELSE)) {
+            elseBranch = statement();
+        }
+        return new Stmt.IfStmt(condition, thenBranch, elseBranch);
     }
 
     private List<Statement> block() {
