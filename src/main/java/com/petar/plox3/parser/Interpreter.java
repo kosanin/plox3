@@ -3,6 +3,7 @@ package com.petar.plox3.parser;
 import com.petar.plox3.Environment;
 import com.petar.plox3.Plox3;
 import com.petar.plox3.scanner.Token;
+import com.petar.plox3.scanner.TokenType;
 
 import java.util.List;
 
@@ -184,6 +185,23 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     }
 
     @Override
+    public Object visitLogicalExpr(Expr.Logical logical) {
+        Object left = evaluate(logical.left());
+        if (logical.operator().type() == TokenType.OR) {
+            if (isTruthy(left)) {
+                return left;
+            }
+        } else {
+            // AND case
+            // if left side is false, short-circuit and just return
+            if (!isTruthy(left)) {
+                return left;
+            }
+        }
+        return evaluate(logical.right());
+    }
+
+    @Override
     public Void visitPrintStatement(Stmt.PrintStatement printStatement) {
         Object expr = evaluate(printStatement.expression());
         System.out.println(stringify(expr));
@@ -215,7 +233,7 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
     @Override
     public Void visitIfStatement(Stmt.IfStmt ifStmt) {
-        if (isTruthy(ifStmt.condition())) {
+        if (isTruthy(evaluate(ifStmt.condition()))) {
             execute(ifStmt.then());
         } else if (ifStmt.elseStmt() != null) {
             execute(ifStmt.elseStmt());

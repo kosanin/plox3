@@ -97,7 +97,7 @@ public class Parser {
 
     private Expression assignment() {
         // need to parse lValue as it can be something like a.b().c().d
-        Expression lValue = equality();
+        Expression lValue = logicOr();
         if (match(TokenType.EQUAL)) {
             Token equals = previous();
             Expression rValue = assignment();
@@ -109,6 +109,26 @@ public class Parser {
             error(equals, "Invalid assignment target.");
         }
         return lValue;
+    }
+
+    private Expression logicOr() {
+        Expression expression = logicAnd();
+        while (match(TokenType.OR)) {
+            Token operator = previous();
+            Expression right = logicAnd();
+            expression = new Expr.Logical(expression, operator, right);
+        }
+        return expression;
+    }
+
+    private Expression logicAnd() {
+        Expression expression = equality();
+        while (match(TokenType.AND)) {
+            Token operator = previous();
+            Expression right = equality();
+            expression = new Expr.Logical(expression, operator, right);
+        }
+        return expression;
     }
 
     private Expression equality() {

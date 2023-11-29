@@ -48,4 +48,14 @@ public record Expr() {
             return visitor.visitAssignmentExpr(this);
         }
     }
+
+    public record Logical(Expression left, Token operator, Expression right)
+            implements Expression {
+
+        @Override
+        public <R> R accept(ExprVisitor<R> visitor) {
+            return visitor.visitLogicalExpr(this);
+        }
+    }
+
 }

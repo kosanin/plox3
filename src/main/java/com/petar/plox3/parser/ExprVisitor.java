@@ -12,4 +12,6 @@ public interface ExprVisitor<R> {
     R visitVariableExpr(Expr.Variable variable);
 
     R visitAssignmentExpr(Expr.Assignment assignment);
+
+    R visitLogicalExpr(Expr.Logical logical);
 }
