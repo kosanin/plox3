@@ -1,8 +1,18 @@
 program     -> declaration* EOF
             ;
 
-declaration -> varDecl
+declaration -> funDecl
+            | varDecl
             | statement
+            ;
+
+funDecl     -> "fun" function
+            ;
+
+function    -> IDENTIFIER "(" parameters? ")" block
+            ;
+
+parameters   -> IDENTIFIER ( "," IDENTIFIER )*
             ;
 
 varDecl     -> "var" IDENTIFIER ( "=" expression )? ";"
@@ -58,7 +68,13 @@ factor      -> unary ( ("*" || "/") unary )*
             ;
 
 unary       -> ( "!" | "-" ) unary
-            | primary
+            | call
+            ;
+
+call        -> primary ( "(" arguments? ")" )*
+            ;
+
+arguments   -> expression ( "," expression )*
             ;
 
 primary     -> NUMBER

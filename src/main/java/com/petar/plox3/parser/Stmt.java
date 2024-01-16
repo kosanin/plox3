@@ -52,4 +52,13 @@ public record Stmt() {
             return visitor.visitWhileStatement(this);
         }
     }
+
+    public record Function(Token name, List<Token> params, List<Statement> body)
+            implements Statement {
+
+        @Override
+        public <R> R accept(StmtVisitor<R> visitor) {
+            return visitor.visitFunctionStatement(this);
+        }
+    }
 }

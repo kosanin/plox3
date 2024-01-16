@@ -2,14 +2,43 @@ package com.petar.plox3.parser;
 
 import com.petar.plox3.Environment;
 import com.petar.plox3.Plox3;
+import com.petar.plox3.PloxCallable;
+import com.petar.plox3.PloxFunction;
 import com.petar.plox3.scanner.Token;
 import com.petar.plox3.scanner.TokenType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
 
-    private Environment environment = new Environment();
+    private Environment globals = new Environment();
+    private Environment environment = globals;
+
+    public Interpreter() {
+        globals.define("clock", new PloxCallable() {
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(Interpreter interpreter,
+                               List<Object> arguments) {
+                assert arguments.size() == 0;
+                return (double) System.currentTimeMillis() / 1000.0;
+            }
+
+            @Override
+            public String toString() {
+                return "<native fn>";
+            }
+        });
+    }
+
+    public Environment getGlobals() {
+        return globals;
+    }
 
     public void interpret(List<Statement> statements) {
         try {
@@ -202,6 +231,28 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
     }
 
     @Override
+    public Object visitCallExpr(Expr.Call call) {
+        Object callee = evaluate(call.callee());
+
+        List<Object> args = new ArrayList<>();
+        for (var arg : call.arguments()) {
+            args.add(evaluate(arg));
+        }
+
+        if (!(callee instanceof PloxCallable)) {
+            throw new RuntimeError(call.paren(),
+                                   "Can only call functions and classes");
+        }
+        PloxCallable function = (PloxCallable) callee;
+        if (args.size() != function.arity()) {
+            throw new RuntimeError(call.paren(),
+                                   "Expected %d arguments, got %d".formatted(
+                                           function.arity(), args.size()));
+        }
+        return function.call(this, args);
+    }
+
+    @Override
     public Void visitPrintStatement(Stmt.PrintStatement printStatement) {
         Object expr = evaluate(printStatement.expression());
         System.out.println(stringify(expr));
@@ -249,8 +300,15 @@ public class Interpreter implements ExprVisitor<Object>, StmtVisitor<Void> {
         return null;
     }
 
-    private void executeBlock(List<Statement> statements,
-                              Environment environment) {
+    @Override
+    public Void visitFunctionStatement(Stmt.Function stmt) {
+        PloxFunction function = new PloxFunction(stmt);
+        environment.define(stmt.name().lexeme(), function);
+        return null;
+    }
+
+    public void executeBlock(List<Statement> statements,
+                             Environment environment) {
         Environment previous = this.environment;
         try {
             this.environment = environment;

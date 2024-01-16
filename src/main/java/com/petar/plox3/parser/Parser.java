@@ -26,6 +26,9 @@ public class Parser {
 
     private Statement declaration() {
         try {
+            if (match(TokenType.FUN)) {
+                return function("function");
+            }
             if (match(TokenType.VAR)) {
                 return varDeclaration();
             }
@@ -34,6 +37,29 @@ public class Parser {
             synchronize();
             return null;
         }
+    }
+
+    private Statement function(String kind) {
+        Token name = consume(TokenType.IDENTIFIER,
+                             "Expected %s name".formatted(kind));
+        consume(TokenType.LEFT_PAREN,
+                "Expected ( before %s param list".formatted(kind));
+        List<Token> params = new ArrayList<>();
+        if (!check(TokenType.RIGHT_PAREN)) {
+            do {
+                if (params.size() > 255) {
+                    error(peek(), "Cant have more than 255 params");
+                }
+                params.add(consume(TokenType.IDENTIFIER,
+                                   "Expected param " + "name"));
+            } while (match(TokenType.COMMA));
+        }
+        consume(TokenType.RIGHT_PAREN,
+                "Expected ) after %s param list".formatted(kind));
+        consume(TokenType.LEFT_BRACE,
+                "Expected { before %s body".formatted(kind));
+        List<Statement> body = block();
+        return new Stmt.Function(name, params, body);
     }
 
     private Statement varDeclaration() {
@@ -235,7 +261,34 @@ public class Parser {
             Token operator = previous();
             return new Expr.Unary(operator, unary());
         }
-        return primary();
+        return call();
+    }
+
+    private Expression call() {
+        Expression expr = primary();
+        while (true) {
+            if (match(TokenType.LEFT_PAREN)) {
+                expr = finishCall(expr);
+            } else {
+                break;
+            }
+        }
+        return expr;
+    }
+
+    private Expression finishCall(Expression expr) {
+        List<Expression> args = new ArrayList<>();
+        if (!check(TokenType.RIGHT_PAREN)) {
+            do {
+                if (args.size() > 255) {
+                    error(peek(), "Can't have more than 255 arguments.");
+                }
+                args.add(expression());
+            } while (match(TokenType.COMMA));
+        }
+        var paren = consume(TokenType.RIGHT_PAREN,
+                            "Expected ) after " + "arguments");
+        return new Expr.Call(expr, paren, args);
     }
 
     private Expression primary() {

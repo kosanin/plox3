@@ -2,6 +2,8 @@ package com.petar.plox3.parser;
 
 import com.petar.plox3.scanner.Token;
 
+import java.util.List;
+
 public record Expr() {
 
     public record Binary(Expression left, Token operator, Expression right)
@@ -16,6 +18,15 @@ public record Expr() {
         @Override
         public <R> R accept(ExprVisitor<R> visitor) {
             return visitor.visitUnaryExpr(this);
+        }
+    }
+
+    public record Call(Expression callee, Token paren,
+                       List<Expression> arguments) implements Expression {
+
+        @Override
+        public <R> R accept(ExprVisitor<R> visitor) {
+            return visitor.visitCallExpr(this);
         }
     }
 

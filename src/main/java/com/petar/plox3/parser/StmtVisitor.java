@@ -13,4 +13,6 @@ public interface StmtVisitor<R> {
     R visitIfStatement(Stmt.IfStmt ifStmt);
 
     R visitWhileStatement(Stmt.WhileStatement whileStatement);
+
+    R visitFunctionStatement(Stmt.Function function);
 }
